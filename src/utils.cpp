@@ -8,7 +8,7 @@
 #include "utils.h"
 
 double logspaceAdd(const double loga, const double logb) {
-    if (!R_FINITE(loga))
+    if (!isfinite(loga))
         return logb;
     if (loga > logb)
         return logspaceAdd(logb, loga);

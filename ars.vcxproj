@@ -154,11 +154,11 @@
     <ClInclude Include="src\AdaptiveGibbsSampler.h" />
     <ClInclude Include="src\Hull.h" />
     <ClInclude Include="src\LogDensity.h" />
-    <ClInclude Include="src\RngStream.h" />
     <ClInclude Include="src\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ars.cpp" />
+    <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
