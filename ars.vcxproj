@@ -151,7 +151,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\AdaptiveGibbsSampler.h" />
     <ClInclude Include="src\Hull.h" />
     <ClInclude Include="src\LogDensity.h" />
     <ClInclude Include="src\utils.h" />
