@@ -8,7 +8,8 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#include <R.h>
+#include <math.h>
+
 double logspaceAdd(const double loga, const double logb);
 
 #endif /* UTILS_H_ */
