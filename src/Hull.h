@@ -11,9 +11,8 @@
 #include <iostream>
 #include <iomanip>
 #include <boost/random/variate_generator.hpp>
+#include "LogDensity.h"
 #include "utils.h"
-
-using namespace std;
 
 #define MAX_HULL_SIZE 500
 #define MAX_HULL_TRIALS 1000
@@ -35,18 +34,22 @@ public:
 template <class T, class R>
 class Hull {
 private:
+
+	/* types */
 	typedef typename boost::variate_generator< R&, boost::uniform_real<> > rng_type;
-public:
+
     /* members */
-    T dist;
+	T dist;
     double upper_hull_max;
     int num_hull_segments;
     HullSegment hull[MAX_HULL_SIZE];
 
+public:
     /* methods */
-    Hull() {
+    Hull(const T d) : dist(d) {
         upper_hull_max = -INFINITY;
         num_hull_segments = 2;
+		initialize();
     }
     void initializeHullMax();
     void normalizeHull();
@@ -57,7 +60,7 @@ public:
     int argBinarySearch(const double log_u, int lower, int upper);
     int squeezeTest(rng_type rng, double & x_trial, double & hx_trial, int segment_idx);
     int drawSample(rng_type rng, double & x_sample);
-    void initialize(const double x0, const double x1, double const * const pdf_args);
+    void initialize();
     double cdf(const double x);
     double inverseCdf(const double p, int & seg_idx);
     void insertSegment(const double x_new, const double h_xnew, const int origin_idx);
@@ -257,9 +260,10 @@ int Hull<T, R>::drawSample(rng_type rng, double & x_sample) {
 }
 
 template <class T, class R>
-void Hull<T, R>::initialize(const double x0, const double x1, double const * const pdf_args) {
-	// before all else, initialize the distribution parameters
-	dist.setParameters(pdf_args);
+void Hull<T, R>::initialize() {
+	const std::tuple<double, double> init = dist.getInit();
+	const double x0 = std::get<0>(init);
+	const double x1 = std::get<1>(init);
 
 	hull[0].left_x = x0;
 	hull[0].h_x = dist.pdf(x0);
@@ -308,7 +312,8 @@ double Hull<T, R>::cdf(const double x) {
 	}
 
 	double seg_integral = hxj - xj * hpxj +
-		log((exp(hpxj * x) - exp(hpxj * z_lower)) / hpxj);
+				log((exp(hpxj * x) - exp(hpxj * z_lower)) / hpxj);
+
 	integral_tot = logspaceAdd(integral_tot, seg_integral);
 	return exp(integral_tot - hull[num_hull_segments - 1].raw_cumulative_integral);
 }
@@ -335,6 +340,7 @@ double Hull<T, R>::inverseCdf(const double p, int & seg_idx) {
 	const double x_star = log(p_remainder * exp(hull_integral) * hp_x +
 		exp((z_prev - x) * hp_x + h_x - upper_hull_max)) +
 		x * hp_x - h_x + upper_hull_max;
+
 	return x_star / hp_x;
 }
 
@@ -361,20 +367,21 @@ void Hull<T, R>::insertSegment(const double x_new, const double h_xnew, const in
 
 template <class T, class R>
 void Hull<T, R>::printHull() {
+	using namespace std;
 	cout << fixed;
-	cout << std::setprecision(4);
+	cout << setprecision(4);
 	cout << "hull max value:" << upper_hull_max << endl;
-	cout << std::setw(7) << "seg idx" << setw(10) << "x" << setw(10) << "z";
-	cout << std::setw(10) << "seg prob" << setw(10) << "cumu prob";
-	cout << std::setw(10) << "seg int" << setw(10) << "cumu int" << endl;
+	cout << setw(7) << "seg idx" << setw(10) << "x" << setw(10) << "z";
+	cout << setw(10) << "seg prob" << setw(10) << "cumu prob";
+	cout << setw(10) << "seg int" << setw(10) << "cumu int" << endl;
 	for (int i = 0; i < num_hull_segments; i++) {
-		cout << std::setw(7) << i;
-		cout << std::setw(10) << hull[i].left_x;
-		cout << std::setw(10) << hull[i].z;
-		cout << std::setw(10) << exp(hull[i].prob);
-		cout << std::setw(10) << exp(hull[i].cum_prob);
-		cout << std::setw(10) << exp(hull[i].raw_integral);
-		cout << std::setw(10) << exp(hull[i].raw_cumulative_integral) << endl;
+		cout << setw(7) << i;
+		cout << setw(10) << hull[i].left_x;
+		cout << setw(10) << hull[i].z;
+		cout << setw(10) << exp(hull[i].prob);
+		cout << setw(10) << exp(hull[i].cum_prob);
+		cout << setw(10) << exp(hull[i].raw_integral);
+		cout << setw(10) << exp(hull[i].raw_cumulative_integral) << endl;
 	}
 }
 

@@ -44,10 +44,9 @@ np::ndarray GetUniform(const int n)
 np::ndarray GetGamma(const double alpha, const double beta, const int n)
 {
 	np::initialize();
-	double pdf_args[] = { alpha, beta };
 
-	Hull<GammaDistribution, base_generator_type> hull;
-	hull.initialize(1.0, 2.0, pdf_args);
+	GammaDistribution dist = GammaDistribution(alpha, beta);
+	Hull<GammaDistribution, base_generator_type> hull(dist);
 
 	double * data = new double[n];
 
